@@ -1,0 +1,27 @@
+# Ambientes Virtuais (Pastas pesadas que não devem subir)
+venv/
+env/
+.env
+__pycache__/
+*.py[cod]
+
+# Banco de Dados Local (SQLite)
+# IMPORTANTE: No Render usaremos PostgreSQL, não queremos enviar o banco local.
+*.sqlite3
+db.sqlite3
+
+# Arquivos de Mídia (Fotos de perfil enviadas durante testes locais)
+media/
+perfil_fotos/
+
+# Arquivos Estáticos coletados (Gerados pelo collectstatic)
+staticfiles/
+
+# Logs e configurações de sistema
+*.log
+.DS_Store
+Thumbs.db
+
+# Configurações de IDE
+.vscode/
+.idea/

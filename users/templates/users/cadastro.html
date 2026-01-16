@@ -1,0 +1,21 @@
+<script src="https://cdn.tailwindcss.com"></script>
+<div class="min-h-screen flex items-center justify-center bg-indigo-900 px-4">
+    <div class="max-w-md w-full bg-white rounded-3xl shadow-2xl p-10">
+        <h2 class="text-3xl font-black text-indigo-700 italic text-center mb-6">Mello.IO</h2>
+        <form method="post">
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="mb-4">
+                    <label class="block text-slate-700 font-bold mb-2 text-sm">{{ field.label }}</label>
+                    {{ field }} <p class="text-red-500 text-xs">{{ field.errors }}</p>
+                </div>
+            {% endfor %}
+            <button type="submit" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold hover:bg-indigo-700 transition">
+                Criar Conta e Iniciar
+            </button>
+        </form>
+        <p class="mt-6 text-center text-sm text-slate-500">
+            Já tem conta? <a href="{% url 'login' %}" class="text-indigo-600 font-bold">Entrar agora</a>
+        </p>
+    </div>
+</div>

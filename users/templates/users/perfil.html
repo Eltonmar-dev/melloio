@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="pt" class="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mello IA | Perfil</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-slate-50 dark:bg-gray-900">
+
+    <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div
+            class="max-w-md w-full space-y-8 bg-white dark:bg-gray-800 p-10 rounded-3xl shadow-2xl border border-gray-100 dark:border-gray-700 relative">
+
+            <a href="{% url 'chat_index' %}"
+                class="absolute top-6 left-6 text-gray-400 hover:text-indigo-600 transition">
+                <i class="bi bi-arrow-left-circle-fill text-3xl"></i>
+            </a>
+            {% if messages %}
+            {% for message in messages %}
+            <div
+                class="mb-4 p-3 rounded-xl bg-green-100 text-green-700 text-xs font-bold text-center border border-green-200 animate-bounce">
+                <i class="bi bi-check-circle-fill me-2"></i> {{ message }}
+            </div>
+            {% endfor %}
+            {% endif %}
+
+            <div class="text-center">
+                <h2 class="mt-2 text-3xl font-black text-gray-900 dark:text-white italic">Mello.IO</h2>
+                <p class="text-sm text-gray-500 mt-1 uppercase font-bold tracking-widest">Configurações de Mentor</p>
+            </div>
+
+            <form class="mt-8 space-y-6" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="flex flex-col items-center">
+                    <div class="relative group">
+                        <div
+                            class="w-32 h-32 rounded-full overflow-hidden border-4 border-indigo-100 dark:border-gray-700 shadow-inner">
+                            {% if perfil.foto %}
+                            <img id="preview" src="{{ perfil.foto.url }}" class="w-full h-full object-cover">
+                            {% else %}
+                            <img id="preview"
+                                src="https://ui-avatars.com/api/?name={{ user.username }}&background=4f46e5&color=fff"
+                                class="w-full h-full object-cover">
+                            {% endif %}
+                        </div>
+                        <label for="foto-input"
+                            class="absolute bottom-0 right-0 bg-indigo-600 text-white p-2 rounded-full cursor-pointer hover:bg-indigo-700 transition shadow-lg border-2 border-white dark:border-gray-800">
+                            <i class="bi bi-camera-fill"></i>
+                            <input type="file" id="foto-input" name="foto" class="hidden" accept="image/*"
+                                onchange="previewImage(event)">
+                        </label>
+                    </div>
+                    <p class="text-[10px] text-gray-400 mt-3 uppercase font-bold">Clique no ícone para mudar a foto</p>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-xs font-bold text-gray-400 uppercase ml-1">Seu Nome de Mentor</label>
+                        <input type="text" name="nome" value="{{ user.first_name }}" required
+                            class="appearance-none rounded-2xl relative block w-full px-4 py-3 border border-gray-200 placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition">
+                    </div>
+
+                    <div
+                        class="bg-slate-50 dark:bg-gray-700 p-4 rounded-2xl border border-gray-100 dark:border-gray-600 flex justify-between items-center">
+                        <div>
+                            <p class="text-[10px] font-bold text-gray-400 uppercase">Plano Atual</p>
+                            <p class="text-indigo-600 font-black uppercase text-sm">{{ perfil.plano_ativo }}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-[10px] font-bold text-gray-400 uppercase">Créditos</p>
+                            <p class="text-gray-700 dark:text-gray-200 font-black text-sm">{{ perfil.prompts_restantes
+                                }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-3">
+                    <button type="submit"
+                        class="group relative w-full flex justify-center py-4 px-4 border border-transparent text-sm font-black rounded-2xl text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition shadow-xl shadow-indigo-100 dark:shadow-none">
+                        <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                            <i class="bi bi-check2-circle text-lg group-hover:text-indigo-200"></i>
+                        </span>
+                        SALVAR ALTERAÇÕES
+                    </button>
+
+                    <a href="{% url 'lista_planos' %}"
+                        class="w-full text-center py-3 text-sm font-bold text-indigo-600 border-2 border-indigo-600 rounded-2xl hover:bg-indigo-50 transition">
+                        MUDAR DE PLANO / UPGRADE
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function previewImage(event) {
+            const reader = new FileReader();
+            reader.onload = function () {
+                const output = document.getElementById('preview');
+                output.src = reader.result;
+            };
+            reader.readAsDataURL(event.target.files[0]);
+        }
+    </script>
+
+</body>
+
+</html>

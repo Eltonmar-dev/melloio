@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="min-h-screen bg-slate-50 py-12 px-4">
+    <div class="max-w-6xl mx-auto text-center mb-12">
+        <h1 class="text-4xl font-extrabold text-slate-900 mb-4">Escolha o seu Plano</h1>
+        <p class="text-lg text-slate-600">Aumente o seu limite de estudos com o Mello Bíblico</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
+        {% for plano in planos %}
+        <div class="relative bg-white border border-slate-200 rounded-3xl p-8 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col {% if plano.nome == 'premium' %}ring-2 ring-indigo-500 scale-105 z-10{% endif %}">
+            
+            {% if plano.nome == 'premium' %}
+            <span class="absolute -top-4 left-1/2 -translate-x-1/2 bg-indigo-600 text-white px-4 py-1 rounded-full text-sm font-bold uppercase tracking-widest">Mais Popular</span>
+            {% endif %}
+
+            <div class="mb-8">
+                <h3 class="text-xl font-bold text-slate-900 uppercase tracking-tight">{{ plano.nome }}</h3>
+                <div class="mt-4 flex items-baseline">
+                    <span class="text-4xl font-black text-slate-900">{{ plano.preco }}</span>
+                    <span class="ml-1 text-xl font-medium text-slate-500">MT</span>
+                </div>
+            </div>
+
+            <ul class="space-y-4 mb-8 flex-grow">
+                <li class="flex items-center text-slate-600">
+                    <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    {{ plano.prompts }} Prompts de IA
+                </li>
+                <li class="flex items-center text-slate-600">
+                    <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    Acesso 24h
+                </li>
+                <li class="flex items-center text-slate-600">
+                    <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    Suporte Prioritário
+                </li>
+            </ul>
+
+            <a href="{% url 'iniciar_pagamento' plano.nome %}" 
+               class="block w-full text-center py-4 px-6 rounded-2xl font-bold transition-all
+               {% if plano.nome == 'premium' %}
+               bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-200
+               {% else %}
+               bg-slate-100 text-slate-900 hover:bg-slate-200
+               {% endif %}">
+                Ativar Plano
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

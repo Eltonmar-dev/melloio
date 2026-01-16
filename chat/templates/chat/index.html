@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="pt" class="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mello IA | Mentor Bíblico</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+    <style>
+        .message-fade-in { animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .typing-dot { animation: typing 1.4s infinite; }
+        @keyframes typing { 0%, 100% { opacity: 0.2; } 50% { opacity: 1; } }
+        #chat-content::-webkit-scrollbar, .sidebar-scroll::-webkit-scrollbar { width: 4px; }
+        #chat-content::-webkit-scrollbar-thumb, .sidebar-scroll::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
+        .chat-active { background-color: #f1f5f9; border-left: 4px solid #4f46e5; }
+        .dark .chat-active { background-color: #374151; border-left: 4px solid #818cf8; }
+    </style>
+</head>
+
+<body class="bg-slate-50 dark:bg-gray-900 transition-colors duration-200">
+
+    <nav class="fixed top-0 z-50 w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+        <div class="px-3 py-3 lg:px-5">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <button data-drawer-target="logo-sidebar" data-drawer-toggle="logo-sidebar" aria-controls="logo-sidebar" type="button" 
+                        class="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none dark:text-gray-400 dark:hover:bg-gray-700">
+                        <i class="bi bi-list text-2xl"></i>
+                    </button>
+                    <a href="/" class="flex ms-2 md:me-24">
+                        <span class="self-center text-xl font-black sm:text-2xl text-indigo-600 italic">Mello.IO</span>
+                    </a>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button id="theme-toggle" class="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-lg">
+                        <i id="theme-toggle-icon" class="bi bi-moon-stars"></i>
+                    </button>
+                    <div class="text-right hidden sm:block">
+                        <p class="text-[10px] uppercase font-bold text-gray-400">Saldo Atual</p>
+                        <p class="text-indigo-600 font-black" id="header-prompts">{{ user.perfil.prompts_restantes }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <aside id="logo-sidebar" class="fixed top-0 left-0 z-40 w-72 h-screen pt-20 transition-transform -translate-x-full bg-white border-r border-gray-200 sm:translate-x-0 dark:bg-gray-800 dark:border-gray-700">
+        <div class="h-full px-3 pb-4 overflow-y-auto bg-white dark:bg-gray-800 flex flex-col">
+            
+            <a href="{% url 'novo_chat' %}" class="flex items-center w-full p-3 mb-4 text-white bg-indigo-600 rounded-xl hover:bg-indigo-700 transition shadow-md font-bold">
+                <i class="bi bi-plus-lg me-2"></i> Novo Chat
+            </a>
+
+            <div class="flex-1 overflow-y-auto sidebar-scroll space-y-1">
+                <p class="text-[10px] uppercase font-bold text-gray-400 mb-2 px-2">Conversas Recentes</p>
+                {% for c in conversas_historico %}
+                <a href="?chat_id={{ c.id }}" class="flex items-center p-3 text-sm text-gray-700 rounded-xl dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 group transition-all {% if c.ativa %}chat-active{% endif %}">
+                    <i class="bi bi-chat-left-text me-3 text-gray-400 group-hover:text-indigo-500"></i>
+                    <span class="truncate">{{ c.mensagens.first.texto_usuario|default:"Nova conversa"|truncatechars:20 }}</span>
+                </a>
+                {% empty %}
+                <p class="text-xs text-gray-400 px-2 italic">Nenhum histórico ainda.</p>
+                {% endfor %}
+            </div>
+
+            <div class="pt-4 mt-4 border-t border-gray-200 dark:border-gray-700 space-y-1">
+                <a href="{% url 'perfil' %}" class="flex items-center p-2 text-gray-600 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <i class="bi bi-person me-3"></i> Perfil
+                </a>
+                <a href="{% url 'logout' %}" class="flex items-center p-2 text-red-500 rounded-lg hover:bg-red-50 dark:hover:bg-gray-700">
+                    <i class="bi bi-box-arrow-left me-3"></i> Sair
+                </a>
+            </div>
+        </div>
+    </aside>
+
+    <div class="p-4 sm:ml-72 h-screen flex flex-col pt-20">
+        <div id="chat-content" class="flex-1 overflow-y-auto space-y-6 px-2 md:px-10 pb-10">
+            {% if not historico %}
+                <div class="text-center my-20" id="welcome-msg">
+                    <div class="inline-block p-6 rounded-3xl bg-indigo-50 dark:bg-gray-800 mb-4">
+                        <i class="bi bi-stars text-4xl text-indigo-600"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Paz seja convosco, {{ user.username }}</h2>
+                    <p class="text-gray-500 text-sm max-w-sm mx-auto">Inicie seu estudo bíblico profundo. Pergunte sobre contextos, línguas originais ou aplicações práticas.</p>
+                </div>
+            {% else %}
+                {% for msg in historico %}
+                <div class="flex justify-end message-fade-in">
+                    <div class="max-w-[85%] md:max-w-[70%] p-4 rounded-2xl bg-indigo-600 text-white rounded-tr-none shadow-md">
+                        <p class="text-sm leading-relaxed">{{ msg.texto_usuario }}</p>
+                    </div>
+                </div>
+                <div class="flex justify-start message-fade-in">
+                    <div class="max-w-[85%] md:max-w-[70%] p-4 rounded-2xl bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-100 dark:border-gray-700 rounded-tl-none shadow-sm">
+                        <div class="text-sm leading-relaxed prose dark:prose-invert">{{ msg.resposta_ia|linebreaks }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+
+        <div class="max-w-4xl w-full mx-auto pb-6 px-4 bg-slate-50 dark:bg-gray-900">
+            <form id="chat-form" class="relative">
+                {% csrf_token %}
+                <textarea id="user-input" rows="1"
+                    class="block p-4 w-full text-sm text-gray-900 bg-white rounded-2xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-800 dark:border-gray-700 dark:text-white shadow-xl resize-none pr-16"
+                    placeholder="Sua dúvida bíblica aqui..."></textarea>
+                <button type="submit" id="send-button"
+                    class="absolute right-3 bottom-3 p-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all disabled:opacity-50">
+                    <i class="bi bi-send-fill text-xl"></i>
+                </button>
+            </form>
+            <p class="text-[10px] text-center text-gray-400 mt-2">Mello v2.0 | Baseado em Exegese e Contexto Histórico</p>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script>
+    <script>
+        const chatContent = document.getElementById('chat-content');
+        const chatForm = document.getElementById('chat-form');
+        const userInput = document.getElementById('user-input');
+        const headerPrompts = document.getElementById('header-prompts');
+
+        // Scroll ao carregar
+        chatContent.scrollTop = chatContent.scrollHeight;
+
+        // Auto-resize textarea
+        userInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+            if(this.scrollHeight > 200) this.style.overflowY = 'scroll';
+        });
+
+        function appendMessage(role, text) {
+            const isUser = role === 'user';
+            const wrapper = document.createElement('div');
+            wrapper.className = `flex ${isUser ? 'justify-end' : 'justify-start'} message-fade-in`;
+            
+            // Tratamento básico para quebras de linha na resposta da IA
+            const formattedText = text.replace(/\n/g, '<br>');
+
+            wrapper.innerHTML = `
+                <div class="max-w-[85%] md:max-w-[70%] p-4 rounded-2xl ${
+                    isUser ? 'bg-indigo-600 text-white rounded-tr-none' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-100 dark:border-gray-700 rounded-tl-none shadow-sm'
+                } shadow-md">
+                    <p class="text-sm leading-relaxed">${formattedText}</p>
+                </div>`;
+            chatContent.appendChild(wrapper);
+            chatContent.scrollTop = chatContent.scrollHeight;
+            document.getElementById('welcome-msg')?.remove();
+        }
+
+        function showTyping() {
+            const div = document.createElement('div');
+            div.id = 'typing-indicator';
+            div.className = 'flex justify-start message-fade-in';
+            div.innerHTML = `
+                <div class="bg-gray-200 dark:bg-gray-700 p-4 rounded-2xl rounded-tl-none">
+                    <div class="flex space-x-2">
+                        <div class="w-2 h-2 bg-gray-400 rounded-full typing-dot"></div>
+                        <div class="w-2 h-2 bg-gray-400 rounded-full typing-dot" style="animation-delay:0.2s"></div>
+                        <div class="w-2 h-2 bg-gray-400 rounded-full typing-dot" style="animation-delay:0.4s"></div>
+                    </div>
+                </div>`;
+            chatContent.appendChild(div);
+            chatContent.scrollTop = chatContent.scrollHeight;
+        }
+
+        chatForm.onsubmit = async (e) => {
+            e.preventDefault();
+            const msg = userInput.value.trim();
+            if(!msg) return;
+
+            appendMessage('user', msg);
+            userInput.value = '';
+            userInput.style.height = 'auto';
+            showTyping();
+
+            try {
+                const response = await fetch("{% url 'enviar_mensagem' %}", {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+                    body: new URLSearchParams({'mensagem': msg})
+                });
+                const data = await response.json();
+                document.getElementById('typing-indicator')?.remove();
+
+                if(data.status === 'sucesso') {
+                    appendMessage('ai', data.resposta);
+                    if(data.restantes !== undefined) headerPrompts.innerText = data.restantes;
+                } else {
+                    appendMessage('ai', "⚠️ " + data.resposta);
+                }
+            } catch (e) {
+                document.getElementById('typing-indicator')?.remove();
+                appendMessage('ai', "Erro na conexão.");
+            }
+        };
+
+        // Dark Mode
+        const themeToggle = document.getElementById('theme-toggle');
+        themeToggle.onclick = () => {
+            document.documentElement.classList.toggle('dark');
+            const icon = document.getElementById('theme-toggle-icon');
+            icon.className = document.documentElement.classList.contains('dark') ? 'bi bi-sun' : 'bi bi-moon-stars';
+        };
+    </script>
+</body>
+</html>

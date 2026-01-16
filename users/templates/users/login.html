@@ -1,0 +1,52 @@
+<script src="https://cdn.tailwindcss.com"></script>
+<div class="min-h-screen flex items-center justify-center bg-indigo-900 px-4">
+    <div class="max-w-md w-full bg-white rounded-2xl shadow-2xl p-8">
+        <div class="text-center mb-8">
+            <h2 class="text-4xl font-black text-indigo-700 italic">Mello</h2>
+            <p class="text-gray-500 mt-2">Teu mentor bíblico inteligente</p>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+
+            {% if form.errors %}
+            <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-3 mb-4 text-sm">
+                Utilizador ou senha incorretos.
+            </div>
+            {% endif %}
+
+            <div class="mb-4">
+                <label class="block text-gray-700 font-bold mb-2">Utilizador</label>
+                <input type="text" name="username" required
+                    class="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-gray-700 font-bold mb-2">Senha</label>
+                <input type="password" name="password" required
+                    class="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+
+            <button type="submit"
+                class="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 transition duration-300 shadow-lg">
+                Entrar no Sistema
+            </button>
+            <button type="submit"
+                class="w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold shadow-lg hover:bg-indigo-700 transition mb-6">
+                Entrar na Conta
+            </button>
+
+            <div class="text-center border-t border-slate-100 pt-6">
+                <p class="text-slate-500 mb-2">Ainda não tens conta no Mello?</p>
+                <a href="{% url 'cadastro' %}"
+                    class="inline-block font-semibold text-indigo-600 hover:text-indigo-800 transition underline-offset-4 hover:underline">
+                    Criar conta agora (Grátis)
+                </a>
+            </div>
+        </form>
+
+        <p class="text-center text-gray-400 text-xs mt-8">
+            © 2026 Mello IA - From NotleIO
+        </p>
+    </div>
+</div>
