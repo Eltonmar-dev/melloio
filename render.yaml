@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: mello-ia-projeto
+    runtime: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn core.wsgi:application"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0 # Versão estável do Python
+      - key: DJANGO_SETTINGS_MODULE
+        value: "core.settings" # Caminho para o seu settings.py
+      - key: DEBUG
+        value: "False"
+      - key: DJANGO_SECRET_KEY
+        generateValue: true # O Render gera uma chave segura para você automaticamente
+      - key: OPENAI_API_KEY
+        sync: false # Você vai colar sua chave manualmente no painel do Render por segurança

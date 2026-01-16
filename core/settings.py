@@ -142,16 +142,20 @@ USE_I18N = True
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+# Configuração de Arquivos Estáticos (WhiteNoise)
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Configuração de Mídia (Fotos de Perfil)
+
 # Redireciona para a nossa URL personalizada em vez de /accounts/login/
 LOGIN_URL = 'login'
 
 # Para onde o usuário vai depois de logar (Raiz / Chat)
 LOGIN_REDIRECT_URL = 'chat_index'
 
-# Para onde o usuário vai depois de sair
 LOGOUT_REDIRECT_URL = 'login'
-# Esta linha abaixo é necessária se estiveres a usar Django 5.0+ 
-# para permitir sair via link (GET) em vez de apenas POST
 LOGOUT_ON_GET = True
 
 
