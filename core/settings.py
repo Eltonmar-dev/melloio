@@ -49,7 +49,7 @@ ALLOWED_HOSTS = [
     'melloio-128j.onrender.com', 
     'localhost', 
     '127.0.0.1',
-    '.onrender.com' # Isso aceita qualquer subdomínio do Render
+    '.onrender.com' 
 ]
 
 # Application definition
